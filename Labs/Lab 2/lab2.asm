@@ -5,17 +5,16 @@
 	right: .asciiz "\nCorrect, the answer is "
 	wrong: .asciiz "\n\nOut of tries. The correct answer is "
 
-
 .text
 	# s0 count
 	# s1 Random number 
 	# s2 User entered number
 
-	addi $v0, $zero, 42	#Generate random number between 0 and 10 and store it in $s1
-	add $a0, $zero, $zero
-	addi $a1, $zero, 10
-	syscall
-	add $s1, $zero, $a0
+	addi $v0, $zero, 42	
+	add $a0, $zero, $zero	
+	addi $a1, $zero, 10	
+	syscall			#Generate random number between 0 and 9
+	add $s1, $zero, $a0	#Store this value in s1
 	
 	addi $s0, $zero, 3	#sets counter to 3
 	
@@ -30,14 +29,11 @@ loop:
 	addi $v0, $zero, 5	#Scanin
 	syscall
 	add $s2, $zero, $v0	#Sets users entered number to s2
-
 	
 	beq $s1, $s2, yes	#if the number are the same, correct
 	
-	
 	slt $s7, $s2, $s1	#Compares users entered and rng
 	beq $s7, 1, bottom	#if the user value is less than the rgn, goto bottom. If it isn't, it will just contiue to top
-
 top:	
 	addi $v0, $zero, 4	#Print text
 	la   $a0, high
