@@ -1,9 +1,9 @@
 .data
 	enter: .asciiz "\nEnter a number between 0 and 9: "
-	low: .asciiz "That number is too low"
-	high: .asciiz "That number is too high"
-	right: .asciiz "\nCorrect, the answer is "
-	wrong: .asciiz "\n\nOut of tries. The correct answer is "
+	low: .asciiz "Your guess is too low."
+	high: .asciiz "Your guess is too high."
+	right: .asciiz "Congratulations! You win!"
+	wrong: .asciiz "\nYou lose. The number was "
 
 .text
 	# s0 count
@@ -51,9 +51,9 @@ yes:
 	la   $a0, right
 	syscall
 	
-	addi $v0, $zero, 1	#Print number
-	add  $a0, $zero, $s1
-	syscall
+	#addi $v0, $zero, 1	#Print number
+	#add  $a0, $zero, $s1
+	#syscall
 	j done
 no:
 	addi $v0, $zero, 4	#Print text
