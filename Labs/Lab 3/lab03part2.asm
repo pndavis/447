@@ -57,23 +57,49 @@ scany:
 
 setcounters:
 	add  $s3, $zero, $s2	#sets first counter to y
-	add  $s4, $zero, $s2	#sets second counter to y
-
+	add  $s4, $zero, $s1	#sets second counter to x
+	j power2
 powering:
-	beq $s3, $zero, display	#if count is 0, goto display
+	addi $s3, $s3, -1	#Counter 1 --
+	add  $s4, $zero, $s1	#sets second counter to x
+	addi $s5, $zero 0
+	j done	
 	
-	j multipy
+	#s1 = x 
+	#s2 = y
+	#s3 = y counter 
+	#s4 = x counter 
 	
+power2:				#These statements are the body of the code, first multiplying, and then adding
+	add  $s0, $zero, $s1	
+	add  $s1, $zero, $s2
+	addi $s2, $zero, 1
+	add $s3, $zero, $zero
+ploop:
+	slt $s4, $s3, $s1
+	beq $s4, $zero, display
+	add $a0, $zero, $s2
+	add $a1, $zero, $s0
+	j reset
+mul:	
+	add $s2, $zero, $v0
+	addi $s3, $s3, 1
+	j ploop
+reset:
+	add $v0, $zero, $zero
+	add $t0, $zero, $zero
+loop:   
+	slt $t1, $t0, $a1
+	beq $t1, $zero, mul
+	add $v0, $v0, $a0
+	addi $t0, $t0, 1
+	j loop
 	
-	
-	j powering
 	
 multiply:
 	beq $s4, $zero, powering
-	
-	
-	
-	
+	addi $s4, $s4, -1	#Counter 2 --
+	add $s0, $s0, $s1	
 	
 	j multiply
 	
@@ -87,7 +113,7 @@ display:
 	syscall
 	
 	addi $v0, $zero, 1	#Print y
-	add  $a0, $zero, $s2
+	add  $a0, $zero, $s0
 	syscall
 	
 	addi $v0, $zero, 4	#Print equals
@@ -95,7 +121,7 @@ display:
 	syscall
 	
 	addi $v0, $zero, 1	#Print total
-	add  $a0, $zero, $s0
+	add  $a0, $zero, $s2
 	syscall
 
 
