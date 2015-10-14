@@ -8,19 +8,19 @@
 # $t9 - key pad
 
 state0: #reset
-	addi $t9, $zero, 0 #Set Keypad to 0
-	addi $t8, $zero, 0 #Set Display to 0
-	addi $t0, $zero, 0 #Operand 1
-	addi $t1, $zero, 0 #Operand 2
-	addi $t2, $zero, 0 #Opperator
-	addi $t3, $zero, 0 #Result
+	addi $t9, $zero, 0 	#Set Keypad to 0
+	addi $t8, $zero, 0 	#Set Display to 0
+	addi $t0, $zero, 0 	#Operand 1
+	addi $t1, $zero, 0 	#Operand 2
+	addi $t2, $zero, 0 	#Opperator
+	addi $t3, $zero, 0 	#Result
 	add $t8, $zero, $t1
 wait:
-	beq $t9, $zero, wait # Waits for a button to be pressed until continuing 
+	beq $t9, $zero, wait 	# Waits for a button to be pressed until continuing 
 state1:
 	sll $t9, $t9, 1 
-	srl $t9, $t9, 1 # These two lines get rid of the 1 at the beginning of t9	
-	slti $s1, $t9, 10 #if the values are 0-9 we will do different things that about 9
+	srl $t9, $t9, 1 	# These two lines get rid of the 1 at the beginning of t9	
+	slti $s1, $t9, 10 	#if the values are 0-9 we will do different things that about 9
 	beq $s1, $zero, opp1
 num1:
 	sll $t4, $t0, 1
@@ -40,7 +40,8 @@ opp1:
 equals:
 	add $t3, $zero, $t0	# result = operand1
 	add $t8, $zero, $t3	# Display result
-	j state4		# Go to State 4	
+	add $t9, $zero, $zero	# reset t9
+	j wait4			# Go to State 4	
 			
 wait2:
 	beq $t9, $zero, wait2
@@ -67,7 +68,8 @@ opp2:
 equals2:
 	add $t3, $zero, $t0	# result = operand1
 	add $t8, $zero, $t3	# Display result
-	j state4		# Go to State 4
+	add $t9, $zero, $zero	# reset t9
+	j wait4			# Go to State 4
 
 wait3:
 	beq $t9, $zero, wait3
@@ -133,20 +135,19 @@ finishCalc:
 	add $t3, $zero, $zero	# Reset results
 	add $t1, $zero, $zero	
 	add $t2, $t9, $zero	# Operator = Input
-	j state2
+	j wait2
 equals3:
 	add $t8, $t3, $zero
-	add $t2, $zero, $zero
 	add $t1, $zero, $zero
-	add $t9, $zero, $zero	
+	add $t9, $zero, $zero	# reset t9
 	j wait4
 
 wait4:
 	beq $t9, $zero, wait4
 state4:
 	sll $t9, $t9, 1 
-	srl $t9, $t9, 1 # These two lines get rid of the 1 at the beginning of t9
-	slti $s1, $t9, 10 #if the values are 0-9 we will do different things that about 9
+	srl $t9, $t9, 1 	# These two lines get rid of the 1 at the beginning of t9
+	slti $s1, $t9, 10 	#if the values are 0-9 we will do different things that about 9
 	beq $s1, $zero, opp4
 num4:
 	add $t8, $zero, $zero
@@ -165,6 +166,5 @@ opp4:
 equals4:
 	add $t8, $t3, $zero
 	add $t1, $zero, $zero
-	add $t3, $zero, $zero
-	add $t9, $zero, $zero
+	add $t9, $zero, $zero	# reset t9
 	j wait4
