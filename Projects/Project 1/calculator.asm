@@ -1,3 +1,6 @@
+#Paul Davis
+#CS 449
+#Project 1
 .text
 
 # $t0 - Opp 1
@@ -29,19 +32,19 @@ num1:
 	add $t0, $t0, $t9	
 	add $t8, $zero, $t0 	# Display operand1
 	add $t9, $zero, $zero	
-	j wait			# Go back to State 1
+	j wait					# Go back to State 1
 opp1:	
-	beq $t9, 15, state0	# C restarts program
-	beq $t9, 14, equals	#
-	add $t2, $zero, $t9	# operator = Input
-	add $t8, $zero, $t0	# Display operand1
+	beq $t9, 15, state0		# C restarts program
+	beq $t9, 14, equals		#
+	add $t2, $zero, $t9		# operator = Input
+	add $t8, $zero, $t0		# Display operand1
 	add $t9, $zero, $zero	# reset t9
-	j wait2			# Go to State 2
+	j wait2					# Go to State 2
 equals:
-	add $t3, $zero, $t0	# result = operand1
-	add $t8, $zero, $t3	# Display result
+	add $t3, $zero, $t0		# result = operand1
+	add $t8, $zero, $t3		# Display result
 	add $t9, $zero, $zero	# reset t9
-	j wait4			# Go to State 4	
+	j wait4					# Go to State 4	
 			
 wait2:
 	beq $t9, $zero, wait2
@@ -53,18 +56,18 @@ state2:
 num2:
 	sll $t4, $t1, 1
 	sll $t5, $t1, 3
-	add $t1, $t4, $t5	# operand2 = (operand2 * 10) + Input
+	add $t1, $t4, $t5		# operand2 = (operand2 * 10) + Input
 	add $t1, $t1, $t9	
-	add $t8, $zero, $t1	# Display operand2
+	add $t8, $zero, $t1		# Display operand2
 	add $t9, $zero, $zero	# Clear t9	
 	j wait3
 opp2:	
-	beq $t9, 15, state0	# C restarts program
+	beq $t9, 15, state0		# C restarts program
 	beq $t9, 14, equals2
-	add $t2, $zero, $t9	# operator = Input
-	add $t8, $zero, $t0	# Display operand1
+	add $t2, $zero, $t9		# operator = Input
+	add $t8, $zero, $t0		# Display operand1
 	add $t9, $zero, $zero	# reset t9
-	j wait2			# Go to State 2
+	j wait2					# Go to State 2
 equals2:
 	add $t3, $zero, $t0	# result = operand1
 	add $t8, $zero, $t3	# Display result
@@ -90,6 +93,7 @@ opp3:
 	beq $t9, 15, state0	# C restarts program
 	addi $s5, $zero, 0	# Multiplication Counter
 	addi $s6, $zero, 0	# Division Counter
+	add $t3, $zero, $zero
 	beq $t2, 10, addition
 	beq $t2, 11, subtraction
 	beq $t2, 12, multiplication
@@ -127,18 +131,18 @@ divisionNeg:
 	j divisionNeg	
 
 finishCalc:
-	addi $s5, $zero, 0	# Multiplication Counter
-	addi $s6, $zero, 0
 	add $t8, $t3, $zero 	# Displays results
 	beq $t9, 14, equals3
-	addi $t0, $t3, 0
+	add $t0, $zero, $t3		# operand1 = result
 	add $t3, $zero, $zero	# Reset results
 	add $t1, $zero, $zero	
-	add $t2, $t9, $zero	# Operator = Input
-	j wait2
+	add $t2, $zero, $zero	#
+	j state2
 equals3:
-	add $t8, $t3, $zero
+	add $t0, $zero, $zero
 	add $t1, $zero, $zero
+	add $t2, $zero, $zero
+	add $t8, $t3, $zero
 	add $t9, $zero, $zero	# reset t9
 	j wait4
 
