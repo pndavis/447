@@ -13,58 +13,58 @@
 	addi $v0, $zero, 42	
 	add $a0, $zero, $zero	
 	addi $a1, $zero, 10	
-	syscall			#Generate random number between 0 and 9
-	add $s1, $zero, $a0	#Store this value in s1
+	syscall					#Generate random number between 0 and 9
+	add $s1, $zero, $a0		#Store this value in s1
 	
-	addi $s0, $zero, 3	#sets counter to 3
+	addi $s0, $zero, 3		#sets counter to 3
 	
-	j loop			#jump to main loop
+	j loop					#jump to main loop
 	
 loop:
-	beq $s0, $zero, no	#if count is 0, end program
-	addi $v0, $zero, 4	#Print text
+	beq $s0, $zero, no		#if count is 0, end program
+	addi $v0, $zero, 4		#Print text
 	la   $a0, enter
 	syscall
 
-	addi $v0, $zero, 5	#Scanin
+	addi $v0, $zero, 5		#Scanin
 	syscall
-	add $s2, $zero, $v0	#Sets users entered number to s2
+	add $s2, $zero, $v0		#Sets users entered number to s2
 	
-	beq $s1, $s2, yes	#if the number are the same, correct
+	beq $s1, $s2, yes		#if the number are the same, correct
 	
-	slt $s7, $s2, $s1	#Compares users entered and rng
-	beq $s7, 1, bottom	#if the user value is less than the rgn, goto bottom. If it isn't, it will just contiue to top
+	slt $s7, $s2, $s1		#Compares users entered and rng
+	beq $s7, 1, bottom		#if the user value is less than the rgn, goto bottom. If it isn't, it will just contiue to top
 top:	
-	addi $v0, $zero, 4	#Print text
+	addi $v0, $zero, 4		#Print text
 	la   $a0, high
 	syscall
-	addi $s0, $s0, -1	#count--
+	addi $s0, $s0, -1		#count--
 	j loop
 bottom:
-	addi $v0, $zero, 4	#Print text
+	addi $v0, $zero, 4		#Print text
 	la   $a0, low
 	syscall
-	addi $s0, $s0, -1	#count--
+	addi $s0, $s0, -1		#count--
 	j loop
 yes:
-	addi $v0, $zero, 4	#Print text
+	addi $v0, $zero, 4		#Print text
 	la   $a0, right
 	syscall
 	
-	#addi $v0, $zero, 1	#Print number
+	#addi $v0, $zero, 1		#Print number
 	#add  $a0, $zero, $s1
 	#syscall
 	j done
 no:
-	addi $v0, $zero, 4	#Print text
+	addi $v0, $zero, 4		#Print text
 	la   $a0, wrong
 	syscall
 	
-	addi $v0, $zero, 1	#Print number
+	addi $v0, $zero, 1		#Print number
 	add  $a0, $zero, $s1
 	syscall
 	j done
 	
 done:
-	addi $v0, $zero, 10	#Terminate Program
+	addi $v0, $zero, 10		#Terminate Program
 	syscall
