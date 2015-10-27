@@ -11,7 +11,7 @@
 	
 	file: .asciiz "\nEnter a text file to be printed: "
 	fileName: .space 64
-	buffer:	.space	100
+	buffer:	.space	80
 
 .text
 
@@ -44,26 +44,40 @@ next:
 	syscall
 	move $s6, $v0			# save the file descriptor
 	
+	li $t0, 0			# Set counter to 0
+
+_readLine:
+	
+
 	li   $v0, 14			# Read from file
 	move $a0, $s6			# file descriptor 
 	la   $a1, buffer		# address of buffer from which to read
-	li   $a2, 1			# hardcoded buffer length
+	li   $a2, 1			# reads 1 char in
 	syscall
 	
-	# Close the file 
-	li $v0, 16			# system call for close file
-	move $a0, $s6			# file descriptor to close
-	syscall				# close file
+	lb $t1, ($a1)
+	
+	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
+	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
 
-	# Let's see what is read
-	la $a0, buffer
-	li $v0, 4
-	syscall
+	addi $a1, $a1, 1		# Set buffer++
+	addi $t0, $t0, 1		# Set counter++
+	
+	j readLine
+newLine:
+	li $t4, 0
+	j fill
+fileEnd:
+	li $t4, 1
+	j fill
+fill:
+	la $a1, buffer
+	sb 
+	
+	beq $t0, 
 
 
 
-
-_readLine:
 _printLine:
 _printBuffer:
 	add  $a0, $zero, $s0
@@ -71,7 +85,7 @@ _printBuffer:
 	jal  _printLine
 	add  $a0, $zero, $s0
 	la   $a1, line2
-	jal  _printLine:
+	#jal  _printLine:
 	add  $a0, $zero, $s0
 	la   $a1, line8
 	jal  _printLine
