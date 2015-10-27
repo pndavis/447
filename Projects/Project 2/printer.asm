@@ -11,6 +11,8 @@
 	
 	file: .asciiz "\nEnter a text file to be printed: "
 	fileName: .space 64
+	buffer:	.space	100
+
 .text
 
 	# $t8: 32-bit data
@@ -25,12 +27,52 @@
 	addi $v0, $zero, 8		#Scanin
 	syscall
 	
-	addi $v0, $zero, 13		#Open File
+removeN:
+	lb $t1, fileName($t0)		# Set t1 equal to the t0 char of string
+	addi $t0, $t0, 1		# counter++
+	bne $t1, $zero, removeN 	# Restart loop until null is reached
+	beq $a1, $s0, next
+	subi $t0, $t0, 2
+	sb $zero, fileName($t0)
+
+next:
+	
+	addi $v0, $zero, 13		# Open File
+	la $a0, fileName     		# input file name
+	li $a1, 0       		# Open for reading (flags are 0: read, 1: write)
+	li $a2, 1      			# mode is ignored
+	syscall
+	move $s6, $v0			# save the file descriptor
+	
+	li   $v0, 14			# Read from file
+	move $a0, $s6			# file descriptor 
+	la   $a1, buffer		# address of buffer from which to read
+	li   $a2, 1			# hardcoded buffer length
 	syscall
 	
-	addi $a2, $zero, 10
-	addi $v0, $zero, 14		#Read from file
+	# Close the file 
+	li $v0, 16			# system call for close file
+	move $a0, $s6			# file descriptor to close
+	syscall				# close file
+
+	# Let's see what is read
+	la $a0, buffer
+	li $v0, 4
 	syscall
-	
-	addi $v0, $zero, 4		#Scanin
-	syscall
+
+
+
+
+_readLine:
+_printLine:
+_printBuffer:
+	add  $a0, $zero, $s0
+	la   $a1, line1
+	jal  _printLine
+	add  $a0, $zero, $s0
+	la   $a1, line2
+	jal  _printLine:
+	add  $a0, $zero, $s0
+	la   $a1, line8
+	jal  _printLine
+_printSpaceBetweenLine:
