@@ -10,7 +10,7 @@
 	line8:	.word	0x00000000, 0x00000000, 0x00000000, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xf0000000, 0x00600000, 0x00000000, 0x00000880, 0x00000000, 0x00007000, 0x00000000
 	
 	file: .asciiz "\nEnter a text file to be printed: "
-	string: .space 64
+	fileName: .space 64
 .text
 
 	# $t8: 32-bit data
@@ -20,8 +20,17 @@
 	la   $a0, file
 	syscall
 	
+	la $a0, fileName
+	addi $a1, $zero, 999		#Sets number of characters read in
 	addi $v0, $zero, 8		#Scanin
 	syscall
-	add $s1, $zero, $v0		#Sets s1 to the file name
 	
-		
+	addi $v0, $zero, 13		#Open File
+	syscall
+	
+	addi $a2, $zero, 10
+	addi $v0, $zero, 14		#Read from file
+	syscall
+	
+	addi $v0, $zero, 4		#Scanin
+	syscall
