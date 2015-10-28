@@ -45,48 +45,59 @@ next:
 	move $s6, $v0			# save the file descriptor
 	
 	li $t0, 0			# Set counter to 0
+	la   $a1, buffer		# address of buffer from which to read
 
 _readLine:
-	
 
+					# This function should take two arguments, a file descriptor and an address of 80-byte bu↵er
+					# Return 1 if it encounters the end of file else return 0
+					# Should always fill up the 80-byte bu↵er
+					# Read the file one byte at a time
+					
 	li   $v0, 14			# Read from file
 	move $a0, $s6			# file descriptor 
-	la   $a1, buffer		# address of buffer from which to read
 	li   $a2, 1			# reads 1 char in
 	syscall
 	
-	lb $t1, ($a1)
-	
+	lb $t1, ($a1)			# Stores byte to buffer
 	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
 	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
 
 	addi $a1, $a1, 1		# Set buffer++
 	addi $t0, $t0, 1		# Set counter++
 	
-	j readLine
+	j _readLine
 newLine:
 	li $t4, 0
 	j fill
 fileEnd:
 	li $t4, 1
 	j fill
-fill:
-	la $a1, buffer
-	sb 
+fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
+	#la $a1, buffer
 	
-	beq $t0, 
+	sb 32, $a1
+	
+	beq $t0, 79, done
+	
+	addi $a1, $a1, 1		# Set buffer++
+	addi $t0, $t0, 1		# Set counter++
+	
+	j fill
+
+done:
 
 
+#_printLine:
+#_printBuffer:
+#	add  $a0, $zero, $s0
+#	la   $a1, line1
+#	jal  _printLine
+#	add  $a0, $zero, $s0
+#	la   $a1, line2
+#	jal  _printLine:
+#	add  $a0, $zero, $s0
+#	la   $a1, line8
+#	jal  _printLine
+#_printSpaceBetweenLine:
 
-_printLine:
-_printBuffer:
-	add  $a0, $zero, $s0
-	la   $a1, line1
-	jal  _printLine
-	add  $a0, $zero, $s0
-	la   $a1, line2
-	#jal  _printLine:
-	add  $a0, $zero, $s0
-	la   $a1, line8
-	jal  _printLine
-_printSpaceBetweenLine:
