@@ -15,109 +15,49 @@
 
 .text
 
-	# $t8: 32-bit data
-	# $t9: Set to 1 to print
-
-	addi $v0, $zero, 4		#Print text
-	la   $a0, file
-	syscall
-	
-	la $a0, fileName
-	addi $a1, $zero, 999		#Sets number of characters read in
-	addi $v0, $zero, 8		#Scanin
-	syscall
-	
-removeN:
-	lb $t1, fileName($t0)		# Set t1 equal to the t0 char of string
-	addi $t0, $t0, 1		# counter++
-	bne $t1, $zero, removeN 	# Restart loop until null is reached
-	beq $a1, $s0, next
-	subi $t0, $t0, 2
-	sb $zero, fileName($t0)
-
-next:
-	
-	addi $v0, $zero, 13		# Open File
-	la $a0, fileName     		# input file name
-	li $a1, 0       		# Open for reading (flags are 0: read, 1: write)
-	li $a2, 1      			# mode is ignored
-	syscall
-	move $s6, $v0			# save the file descriptor
-	
-	li $t0, 0			# Set counter to 0
-	la   $a1, buffer		# address of buffer from which to read
-
-_readLine:
-
-					# This function should take two arguments, a file descriptor and an address of 80-byte bu↵er
-					# Return 1 if it encounters the end of file else return 0
-					# Should always fill up the 80-byte bu↵er
-					# Read the file one byte at a time
-					
-	li   $v0, 14			# Read from file
-	move $a0, $s6			# file descriptor 
-	li   $a2, 1			# reads 1 char in
-	syscall
-	
-	lb $t1, ($a1)			# Stores byte to buffer
-	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
-	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
-
-	addi $a1, $a1, 1		# Set buffer++
-	addi $t0, $t0, 1		# Set counter++
-	
-	j _readLine
-newLine:
-	li $t4, 0
-	j fill
-fileEnd:
-	li $t4, 1
-	j fill
-fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
-	#la $a1, buffer
-	
-	li $t3, 32			# Set t3 to ASCII space
-	sb $t3, ($a1)			# Add a space to the end of buffer
-	
-	beq $t0, 80, done		# Fill until count hits 80, which means we hit the end of the buffer
-	
-	addi $a1, $a1, 1		# Set buffer++
-	addi $t0, $t0, 1		# Set counter++
-	
-	j fill
-
-done:
-	li $t0, 0			# Set counter to 0
-	#j _printSpaceBetweenLine
-
-
-_printLine:
+printLine:
 	la $t5, line1
-	lb $t4, 40($t5)
+	lb $t8, 40($t5)
 	li $t9, 1
+	la $t5, line2
+	lb $t8, 41($t5)
+	li $t9, 1
+	la $t5, line3
+	lb $t8, 42($t5)
+	li $t9, 1
+	la $t5, line4
+	lb $t8, 43($t5)
+	li $t9, 1
+	jal 
+	la $t5, line5
+	lb $t8, 44($t5)
+	li $t9, 1
+	la $t5, line6
+	lb $t8, 45($t5)
+	li $t9, 1
+	la $t5, line7
+	lb $t8, 46($t5)
+	li $t9, 1
+	la $t5, line8
+	lb $t8, 47($t5)
+	li $t9, 1
+	
+_printend:
+	beq $t0, 5, finish
+	addi $t8, $zero, 0x00000000
+	addi $t9, $zero, 1
+	
+	addi $t0, $t0, 1		# Set counter++
+	
+	j _printend
 
-
-
-
-
-_printBuffer:
-	move 
-	la $a0, buffer
-	la   $a1, line1
-	#jal  _printLine
-	add  $a0, $zero, $s0
-	la   $a1, line2
-	#jal  _printLine:
-	add  $a0, $zero, $s0
-	la   $a1, line8
-	#jal  _printLine
 _printSpaceBetweenLine:
-	beq $t0, 75, finish
+	beq $t0, 1000, finish
 	addi $t8, $zero, 0x00000000
 	addi $t9, $zero, 1
 	
 	addi $t0, $t0, 1		# Set counter++
 	
 	j _printSpaceBetweenLine
-
+	
 finish:
