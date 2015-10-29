@@ -76,9 +76,10 @@ fileEnd:
 fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
 	#la $a1, buffer
 	
-	sb 32, $a1
+	li $t3, 32			# Set t3 to ASCII space
+	sb $t3, ($a1)			# Add a space to the end of buffer
 	
-	beq $t0, 79, done
+	beq $t0, 80, done		# Fill until count hits 80, which means we hit the end of the buffer
 	
 	addi $a1, $a1, 1		# Set buffer++
 	addi $t0, $t0, 1		# Set counter++
