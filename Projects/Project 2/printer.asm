@@ -87,21 +87,42 @@ fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
 	j fill
 
 done:
-	li $t0, 0			# Set counter to 0
+	#li $t0, 0			# Set counter to 0
 	#j _printSpaceBetweenLine
 
 
 _printLine:
-	la $t5, line1
-	lb $t4, 40($t5)
-	li $t9, 1
 
-
+	#a0 = buffer
+	#a1 = line
+	li $t0, 0			# Set counter to 0
+	li $t1, 0			# Set counter2 to 0
+	#6 + 6 + 6 + 6 + 6 + 2
+	printA:
+	subi $t5, $a0, 32		# set t5 to ascii number of a0
+	lb $t6, $t5($a1)		# set t6 to ascii value of a0
+	or $t8, $t8, $t6		# ors t8 and t6
+	
+	sll $t8, $t8, 6			# shifts t8 down 6 places
+	
+	addi $a0, $a0, 1		# buffer++
+	addi $t1, $t1, 1		# counter++
+	beq $t1, 5, printA		#
+	
+	
+	
+	#4 + 6 + 6 + 6 + 6 + 4
+	printB:
+	
+	#2 + 6 + 6 + 6 + 6 + 6
+	printC:
+	
+	beq $t0, 5, $ra			# 3 * 5 * 32 = 480 bits
 
 
 
 _printBuffer:
-	move 
+	#move 
 	la $a0, buffer
 	la   $a1, line1
 	#jal  _printLine
