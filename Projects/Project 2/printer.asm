@@ -93,49 +93,89 @@ done:
 
 _printLine:
 
-	#a0 = buffer
-	#a1 = line
+	la $a0, buffer			#a0 = buffer
+	la $a1, line7		
+	
 	li $t0, 0			# Set counter to 0
 	li $t1, 0			# Set counter2 to 0
 	#6 + 6 + 6 + 6 + 6 + 2
 	printA:
-	subi $t5, $a0, 32		# set t5 to ascii number of a0
-	lb $t6, $t5($a1)		# set t6 to ascii value of a0
-	or $t8, $t8, $t6		# ors t8 and t6
-	
+	lb $t5, ($a0)			# Set t5 to beginning of buffer
+	subi $t5, $t5, 32		# - 32 from ascii value
+	add $t5, $t5, $a1		# 
+	lbu $t6, ($t5)			# set t6 to ascii value of buffer
+	srl $t6, $t6, 2			# Makes t6 only 6 bits
+	or $t8, $t8, $t6		# ORs t8 and t6
 	sll $t8, $t8, 6			# shifts t8 down 6 places
 	
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
-	beq $t1, 5, printA		#
+	bne $t1, 5, printA		# Loops 5 times for the 5 sixes
 	
+	lb $t5, ($a0)
+	subi $t5, $t5, 32
+	add $t5, $t5, $a1
+	lbu $t6, ($t5)
+	srl $t6, $t6, 6			# shift right 6 times so you only get the last 2 bits
+	or $t8, $t8, $t6		
 	
+	li $t9, 1
+	li $t8, 0
 	
 	#4 + 6 + 6 + 6 + 6 + 4
-	printB:
 	
+	lb $t5, ($a0)
+	subi $t5, $t5, 32
+	add $t5, $t5, $a1
+	lbu $t6, ($t5)
+	sll $t6, $t6, 4			# shift left 4 times and back to get 4 bits
+	srl $t6, $t6, 4	
+	or $t8, $t8, $t6
+	sll $t8, $t8, 4			# shifts t8 down 6 places
+	li $t1, 0			# Set counter2 to 0
+	
+	printB:
+	lb $t5, ($a0)			# Set t5 to beginning of buffer
+	subi $t5, $t5, 32		# - 32 from ascii value
+	add $t5, $t5, $a1		# 
+	lbu $t6, ($t5)			# set t6 to ascii value of buffer
+	srl $t6, $t6, 2			# Makes t6 only 6 bits
+	or $t8, $t8, $t6		# ORs t8 and t6
+	sll $t8, $t8, 6			# shifts t8 down 6 places
+	addi $a0, $a0, 1		# buffer++
+	addi $t1, $t1, 1		# counter++
+	bne $t1, 4, printB		# Loops 4 times for the 4 sixes
+	
+	
+	
+	li $t9, 1
+	li $t8, 0
 	#2 + 6 + 6 + 6 + 6 + 6
 	printC:
 	
-	beq $t0, 5, $ra			# 3 * 5 * 32 = 480 bits
+	
+	
+	li $t9, 1
+	li $t8, 0
+	#beq $t0, 5, $ra			# 3 * 5 * 32 = 480 bits
 
 
 
-_printBuffer:
+#_printBuffer:
 	#move 
-	la $a0, buffer
-	la   $a1, line1
+	#la $a0, buffer
+	#la   $a1, line1
 	#jal  _printLine
-	add  $a0, $zero, $s0
-	la   $a1, line2
+	#la  $a0, buffer
+	#la   $a1, line2
 	#jal  _printLine:
-	add  $a0, $zero, $s0
-	la   $a1, line8
+	#la  $a0, buffer
+	#la   $a1, line8
 	#jal  _printLine
 _printSpaceBetweenLine:
 	beq $t0, 75, finish
 	addi $t8, $zero, 0x00000000
-	addi $t9, $zero, 1
+	#addi $t9, $zero, 1
 	
 	addi $t0, $t0, 1		# Set counter++
 	
