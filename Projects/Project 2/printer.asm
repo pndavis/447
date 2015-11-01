@@ -43,8 +43,10 @@ main:
 	jal _readLine
 	
 	jal _printBuffer
+	li $t0, 0			# Set counter to 0
 	jal _printSpaceBetweenLine
 	
+	#j finish			# Test to print just 1 line
 	beq $t4, 1, finish		# If readline detects the end of the file, end program
 	j main
 
@@ -55,8 +57,8 @@ _readLine:
 					# Should always fill up the 80-byte bu↵er
 					# Read the file one byte at a time
 			
-	li   $v0, 14			# Read from file
-	li   $a2, 1			# reads 1 char in
+	li $v0, 14			# Read from file
+	li $a2, 1			# reads 1 char in
 	syscall	
 	lb $t1, ($a1)			# Stores byte to buffer
 	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
@@ -81,13 +83,9 @@ done:
 	jr $ra
 
 _printLine:
-
-	#la $a0, buffer			#a0 = buffer
-	#la $a1, line7		
-	
 	
 	li $t1, 0			# Set counter2 to 0
-	#6 + 6 + 6 + 6 + 6 + 2
+	# PRINT A (6 + 6 + 6 + 6 + 6 + 2)
 	printA:
 	lb $t5, ($a0)			# Set t5 to beginning of buffer
 	subi $t5, $t5, 32		# - 32 from ascii value
@@ -95,14 +93,15 @@ _printLine:
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
 	or $t7, $t7, $t6		# ORs t8 and t6
-	sll $t7, $t7, 6			# shifts t8 down 6 places
-	
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
-	bne $t1, 5, printA		# Loops 5 times for the 5 sixes
-	
-	
+	beq $t1, 5, finishPrintA	# This way it doesn't shift 6 when it should only shift 2
+	sll $t7, $t7, 6			# shifts t8 down 6 places
+	j printA
+
 	# Last 2 bits
+	finishPrintA:
+	sll $t7, $t7, 2			# shifts t7 down 2 places
 	lb $t5, ($a0)
 	subi $t5, $t5, 32
 	add $t5, $t5, $a1
@@ -110,20 +109,18 @@ _printLine:
 	srl $t6, $t6, 6			# shift right 6 times so you only get the last 2 bits
 	or $t7, $t7, $t6		
 	
-	add $t8, $zero, $t7
+	# End of printA
+	move $t8, $t7
 	li $t7, 0
 	li $t9, 1
 	
-	
-	#4 + 6 + 6 + 6 + 6 + 4
+	# PRINT B (4 + 6 + 6 + 6 + 6 + 4)
 	
 	# other 4 bits
-	lb $t5, ($a0)
-	subi $t5, $t5, 32
-	add $t5, $t5, $a1
 	lbu $t6, ($t5)
-	sll $t7, $t6, 4			# shift left 4 times and back to get 4 bits
-	li $t1, 0			# Set counter2 to 0
+	srl $t6, $t6, 2			# 
+	andi $t6, $t6, 15
+	sll $t7, $t7, 6	
 	
 	addi $a0, $a0, 1		# Buffer++
 	li $t1, 0			# Set counter2 to 0
@@ -136,35 +133,36 @@ _printLine:
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
 	or $t7, $t7, $t6		# ORs t8 and t6
-	sll $t7, $t7, 6			# shifts t8 down 6 places
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
-	bne $t1, 4, printB		# Loops 4 times for the 4 sixes
+	beq $t1, 4, finishPrintB	# Loops 4 times for the 4 sixes
+	sll $t7, $t7, 6			# shifts t7 down 6 places
+	j printB
 	
 	# Last 4 bits
+	finishPrintB:
+	sll $t7, $t7, 4			# shifts t7 down 4 places
 	lb $t5, ($a0)
 	subi $t5, $t5, 32
 	add $t5, $t5, $a1
 	lbu $t6, ($t5)
 	srl $t6, $t6, 4			# shift right 4 times and back to get 4 bits
-	sll $t6, $t6, 4	
 	or $t7, $t7, $t6
-	
+		
 	li $t1, 0			# Set counter2 to 0
-	add $t8, $zero, $t7
+	move $t8, $t7
 	li $t9, 1
 	li $t7, 0
 	
-	#2 + 6 + 6 + 6 + 6 + 6
+	# PRINT C (2 + 6 + 6 + 6 + 6 + 6)
 	# Print last 2 bits
-	lb $t5, ($a0)
-	subi $t5, $t5, 32
-	add $t5, $t5, $a1
 	lbu $t6, ($t5)
+	srl $t6, $t6, 2
+	andi $t6, $t6, 3
 	sll $t7, $t6, 6
-	#srl $t7, $t6, 6		# shift right 6 times so you only get the last 2 bits
-	
 	addi $a0, $a0, 1		# Buffer++
+	li $t1, 0			# Set counter2 to 0
+	
 	# Print 5 6 bits
 	printC:
 	lb $t5, ($a0)			# Set t5 to beginning of buffer
@@ -173,12 +171,14 @@ _printLine:
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
 	or $t7, $t7, $t6		# ORs t8 and t6
-	sll $t7, $t7, 6			# shifts t8 down 6 places
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
-	bne $t1, 5, printC		# Loops 5 times for the 5 sixes
+	beq $t1, 5, finishPrintC	# Loops 5 times for the 5 sixes
+	sll $t7, $t7, 6			# shifts t8 down 6 places
+	j printC
 	
-	add $t8, $zero, $t7
+	finishPrintC:
+	move $t8, $t7
 	li $t9, 1
 	li $t7, 0
 	addi $t0, $t0, 1
@@ -234,5 +234,8 @@ _printSpaceBetweenLine:
 	jr $ra
 
 finish:
+	li   $v0, 16       # close file
+	move $a0, $s6      # file descriptor to close
+	syscall 
 	addi $v0, $zero, 10
 	syscall
