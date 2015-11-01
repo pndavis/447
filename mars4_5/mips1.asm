@@ -1,193 +1,91 @@
+.data
+                      #    # " !       ' & % $     + * ) (     / . - ,     3 2 1 0     7 6 5 4     ; : 9 8     ? > = <     C B A @     G F E D     K J I H     O N M L     S R Q P     W V U T     [ Z Y X     _ ^ ] \     c b a `     g f e d     k j i h     0 n m l     s r q p     w v u t     { z y x     | } ~ <-
+	line1:	.word	0x50502000, 0x2040c020, 0x00002020, 0x00000000, 0x70702070, 0xf870f810, 0x00007070, 0x70000000,	0x70f07070, 0x70f8f8f0, 0x88087088, 0x70888880, 0x70f070f0, 0x888888f8, 0x70f88888, 0x00207000, 0x00800020, 0x00300008, 0x80102080, 0x00000060, 0x00000000, 0x00000040, 0x10000000, 0x00404020
+	line2:	.word	0x50502000, 0x20a0c878, 0x20a81040, 0x08000000, 0x88886088, 0x08888030, 0x00008888, 0x88400010, 0x88888888, 0x88808088, 0x90082088, 0x8888d880, 0x88888888, 0x88888820, 0x40088888, 0x00501080, 0x00800020, 0x00400008, 0x80000080, 0x00000020, 0x00000000, 0x00000040, 0x20000000, 0x00a82020
+	line3:	.word	0xf8502000, 0x20a01080, 0x20701040, 0x10000000, 0x08082098, 0x1080f050, 0x20208888, 0x0820f820, 0x80888898, 0x80808088, 0xa0082088, 0x88c8a880, 0x80888888, 0x88888820, 0x40105050, 0x00881040, 0x70f07010, 0x70e07078, 0x903060f0, 0x70f8f020, 0x78b878f0, 0xa88888f0, 0x20f88888, 0x00102020
+	line4:	.word	0x50002000, 0x00402070, 0xf8d81040, 0x2000f800, 0x301020a8, 0x20f80890, 0x00007870, 0x30100040, 0x80f088a8, 0x80f0f088, 0xc00820f8, 0x88a88880, 0x70f088f0, 0x88888820, 0x40202020, 0x00001020, 0x88880800, 0x88408888, 0xa0102088, 0x8888a820, 0x80488888, 0xa8888840, 0x40108850, 0x00001020
+	line5:	.word	0xf8002000, 0x00a84008, 0x20701040, 0x40000030, 0x082020c8, 0x208808f8, 0x20200888, 0x2020f820, 0x8088f898, 0xb8808088, 0xa0882088, 0x88988880, 0x08a08880, 0xa8888820, 0x40402050, 0x00001010, 0x80887800, 0x8840f888, 0xc0102088, 0x8888a820, 0x70408888, 0xa8508840, 0x20208820, 0x00002020
+	line6:	.word	0x50000000, 0x009098f0, 0x20a81040, 0x80000030, 0x88402088, 0x20888810, 0x20008888, 0x00400010, 0x88888880, 0x88808088, 0x90882088, 0x88888880, 0x88909880, 0xd8508820, 0x40802088, 0x00001008, 0x80888800, 0x78408088, 0xa0102088, 0x8888a820, 0x084078f0, 0xa8508840, 0x20407850, 0x00002020
+	line7:	.word	0x50002000, 0x00681820, 0x00002020, 0x00200010, 0x70f87070, 0x20707010, 0x00007070, 0x20000000, 0x70f08878, 0x7080f8f0, 0x88707088, 0x708888f8, 0x70887880, 0x88207020, 0x70f82088, 0xf8007000, 0x78f07800, 0x08407878, 0x90907088, 0x7088a870, 0xf0400880, 0x50207830, 0x10f80888, 0x00004020
+	line8:	.word	0x00000000, 0x00000000, 0x00000000, 0x00000020, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0xf0000000, 0x00600000, 0x00000000, 0x00000880, 0x00000000, 0x00007000, 0x00000000
+	
+	file: .asciiz "\nEnter a text file to be printed: "
+	fileName: .space 64
+	buffer:	.space	80
 
 .text
-State_0:
-	add $t9,$zero,0 #Set Keypad to 0
-	add $t8,$zero,0 #Set Display to 0
-	addi $t0,$zero,0 #Opp 1
-	addi $t1, $zero, 0 #Opp 2
-	addi $t2, $zero, 0 #Opperator
-	addi $t3, $zero,0 #Result
-	add $t8,$zero,0
-wait:
-	beq $t9,$zero,wait
-State_1:
-	sll $t9,$t9,1
-	srl $t9,$t9,1
-	
-	slti $s1, $t9, 10
-	beq $s1, $zero, oppS1
-numS1:	
-	sll $t5,$t0,1
-	sll $t6,$t0,3
-	add $t0,$t5,$t6
-	
-	add $t8,$zero,$zero
-	add $t0,$t9,$t0
-	add $t8,$t0,0
-	add $t9,$zero,0
-	j wait
 
-oppS1:
-	beq $t9, 10, addition
-	beq $t9, 11, subtraction
-	beq $t9, 12, multi
-	beq $t9, 13, divide	
-	beq $t9, 14, equal
-	beq $t9, 15, State_0
-addition:
-	addi $t2, $zero, 10
-	addi $t9,$zero, 0
-	j State_2w
-subtraction:
-	addi $t2,$zero, 11
-	addi $t9,$zero, 0
-	j State_2w
-multi:
-	addi $t2,$zero, 12
-	addi $t9,$zero, 0
-	j State_2w
-divide: 
-	addi $t2,$zero, 13
-	addi $t9,$zero, 0
-	j State_2w
-equal:
-	addi $t2,$zero, 14
-	add $t3, $t0,$zero
-	add $t8, $t3,$zero
-	j State_4w
-State_2w:
-	beq $t9,$zero,State_2w
-State_2:
-	sll $t9,$t9,1
-	srl $t9,$t9,1
-	
-	slti $s1, $t9, 10
-	beq $s1, $zero, oppS2
-numS2:	
-	sll $t5,$t1,1
-	sll $t6,$t1,3
-	add $t1,$t5,$t6
-	add $t8,$zero,$zero
-	add $t1,$t9,$t1
-	add $t8,$t1,0
-	add $t9,$zero,0
-	j State_3w
+	# $t8: 32-bit data
+	# $t9: Set to 1 to print
 
-oppS2:
-	beq $t9, 10, setOpp2
-	beq $t9, 11, setOpp2
-	beq $t9, 12, setOpp2
-	beq $t9, 13, setOpp2	
-	beq $t9, 14, equal
-	beq $t9, 15, State_0
-setOpp2:
-	add $t2,$t9,$zero
-	addi $t9,$zero, 0
-	add $t8,$t0,$zero
-	j State_2w
-State_3w:
-	beq $t9,$zero,State_3w
-State_3:
-	sll $t9,$t9,1
-	srl $t9,$t9,1
+	addi $v0, $zero, 4		#Print text
+	la   $a0, file
+	syscall
 	
-	slti $s1, $t9, 10
-	beq $s1, $zero, oppS3
-numS3:	
-	sll $t5,$t1,1
-	sll $t6,$t1,3
-	add $t1,$t5,$t6
-	add $t8,$zero,$zero
-	add $t1,$t9,$t1
-	add $t8,$t1,0
-	add $t9,$zero,0
-	j State_3w
-oppS3:
-	beq $t9, 10, calc
-	beq $t9, 11, calc
-	beq $t9, 12, calc
-	beq $t9, 13, calc	
-	beq $t9, 14,calc
-	beq $t9, 15, State_0
-calc:
-	addi $s5,$zero,0
-	addi $s6, $zero,0
-	beq $t2,12,calcMulti
-	beq $t2,13, calcDivide
-	beq $t2, 10, calcAdd
-	beq $t2, 11, calcMinus
-calcMulti:
-	add $t3,$t3,$t0
-	addi $s5,$s5,1
-	bne $s5,$t1,calcMulti
-	j finishCalc
-calcDivide: 
-	slti $s7,$t0,0
-	beq $s7,1,divideNeg
-dividePos:
-	sub $t0,$t0,$t1
-	slti $s6,$t0,0
-	bne $s6,$zero, finishCalc
-	addi $t3,$t3,1
-	slti $s6,$t0,1
-	bne $s6,$zero, finishCalc
+	la $a0, fileName
+	addi $a1, $zero, 999		#Sets number of characters read in
+	addi $v0, $zero, 8		#Scanin
+	syscall
 	
-	j dividePos
-divideNeg:	
-	addi $s7,$zero,-1
-	add $t0,$t0,$t1
-	slt $t6,$zero,$t0
-	bne $s6,0,finishCalc
-	subi $t3,$t3,1
-	slt $s6,$s7,$t0
-	bne $s6,0,finishCalc
-	j divideNeg
-	
-calcAdd:
-	add $t3, $t0,$t1
-	j finishCalc
-calcMinus:
-	sub $t3,$t0,$t1
-	j finishCalc
-finishCalc:
-	add $t8,$t3,$zero
-	beq $t9,14, finEQ
-	addi $t0,$t3, 0
-	add $t3, $zero,$zero
-	add $t1,$zero,$zero
-	
-	add $t2, $t9,$zero
-	j State_2
-finEQ:
-	add $t2, $zero,$zero
-	add $t1,$zero,$zero
-	add $t9, $zero,$zero
+removeN:
+	lb $t1, fileName($t0)		# Set t1 equal to the t0 char of string
+	addi $t0, $t0, 1		# counter++
+	bne $t1, $zero, removeN 	# Restart loop until null is reached
+	beq $a1, $s0, next
+	subi $t0, $t0, 2
+	sb $zero, fileName($t0)
 
-	j State_4w
-State_4w:
-	beq $t9,$zero,State_4w
-State_4:
-	sll $t9,$t9,1
-	srl $t9,$t9,1
-	slti $s1, $t9, 10
-	beq $s1, $zero, OppS4
-numS4:	
-	add $t8,$zero,$zero
-	add $t0,$t9,$t0
-	add $t8,$t0,0
-	add $t9,$zero,0
-	j wait
-OppS4:
-	beq $t9, 14,EqS4
-	beq $t9, 15 State_0
-	add $t0,$t3,$zero
-	add $t3, $zero,$zero
-	add $t1, $zero,$zero
-	add $t2,$t9,$zero
-	j State_2w
-EqS4:
-	add $t8,$t3, $zero
-	addi $t1,$zero,0
-	add $t3,$zero,$zero
-	add $t9, $zero,$zero
-	j State_4w
+next:
+	
+	addi $v0, $zero, 13		# Open File
+	la $a0, fileName     		# input file name
+	li $a1, 0       		# Open for reading (flags are 0: read, 1: write)
+	li $a2, 1      			# mode is ignored
+	syscall
+	move $s6, $v0			# save the file descriptor
+	
+	li $t0, 0			# Set counter to 0
+	la   $a1, buffer		# address of buffer from which to read
+
+_readLine:
+
+					# This function should take two arguments, a file descriptor and an address of 80-byte bu↵er
+					# Return 1 if it encounters the end of file else return 0
+					# Should always fill up the 80-byte bu↵er
+					# Read the file one byte at a time
+					
+	li   $v0, 14			# Read from file
+	move $a0, $s6			# file descriptor 
+	li   $a2, 1			# reads 1 char in
+	syscall
+	
+	lb $t1, ($a1)			# Stores byte to buffer
+	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
+	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
+
+	addi $a1, $a1, 1		# Set buffer++
+	addi $t0, $t0, 1		# Set counter++
+	
+	j _readLine
+newLine:
+	li $t4, 0
+	j fill
+fileEnd:
+	li $t4, 1
+	j fill
+fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
+	#la $a1, buffer
+	
+	li $t3, 32			# Set t3 to ASCII space
+	sb $t3, ($a1)			# Add a space to the end of buffer
+	
+	beq $t0, 80, done		# Fill until count hits 80, which means we hit the end of the buffer
+	
+	addi $a1, $a1, 1		# Set buffer++
+	addi $t0, $t0, 1		# Set counter++
+	
+	j fill
+
+done:
+	#li $t0, 0			# Set counter to 0
+	#j _printSpaceBetweenLine

@@ -14,19 +14,13 @@
 	buffer:	.space	80
 
 .text
-
-	# $t8: 32-bit data
-	# $t9: Set to 1 to print
-
 	addi $v0, $zero, 4		#Print text
 	la   $a0, file
-	syscall
-	
+	syscall	
 	la $a0, fileName
 	addi $a1, $zero, 999		#Sets number of characters read in
 	addi $v0, $zero, 8		#Scanin
-	syscall
-	
+	syscall	
 removeN:
 	lb $t1, fileName($t0)		# Set t1 equal to the t0 char of string
 	addi $t0, $t0, 1		# counter++
@@ -34,16 +28,13 @@ removeN:
 	beq $a1, $s0, next
 	subi $t0, $t0, 2
 	sb $zero, fileName($t0)
-
-next:
-	
+next:	
 	addi $v0, $zero, 13		# Open File
 	la $a0, fileName     		# input file name
 	li $a1, 0       		# Open for reading (flags are 0: read, 1: write)
 	li $a2, 1      			# mode is ignored
 	syscall
 	move $s6, $v0			# save the file descriptor
-	
 	li $t0, 0			# Set counter to 0
 	la   $a1, buffer		# address of buffer from which to read
 
@@ -57,15 +48,12 @@ _readLine:
 	li   $v0, 14			# Read from file
 	move $a0, $s6			# file descriptor 
 	li   $a2, 1			# reads 1 char in
-	syscall
-	
+	syscall	
 	lb $t1, ($a1)			# Stores byte to buffer
 	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
 	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
-
 	addi $a1, $a1, 1		# Set buffer++
-	addi $t0, $t0, 1		# Set counter++
-	
+	addi $t0, $t0, 1		# Set counter++	
 	j _readLine
 newLine:
 	li $t4, 0
@@ -74,29 +62,25 @@ fileEnd:
 	li $t4, 1
 	j fill
 fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
-	#la $a1, buffer
-	
 	li $t3, 32			# Set t3 to ASCII space
-	sb $t3, ($a1)			# Add a space to the end of buffer
-	
+	sb $t3, ($a1)			# Add a space to the end of buffer	
 	beq $t0, 80, done		# Fill until count hits 80, which means we hit the end of the buffer
-	
 	addi $a1, $a1, 1		# Set buffer++
 	addi $t0, $t0, 1		# Set counter++
 	
 	j fill
-
 done:
+	j _printBuffer
 	#li $t0, 0			# Set counter to 0
 	#j _printSpaceBetweenLine
 
 
 _printLine:
 
-	la $a0, buffer			#a0 = buffer
-	la $a1, line7		
+	#la $a0, buffer			#a0 = buffer
+	#la $a1, line7		
 	
-	li $t0, 0			# Set counter to 0
+	
 	li $t1, 0			# Set counter2 to 0
 	#6 + 6 + 6 + 6 + 6 + 2
 	printA:
@@ -105,77 +89,135 @@ _printLine:
 	add $t5, $t5, $a1		# 
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
-	or $t8, $t8, $t6		# ORs t8 and t6
-	sll $t8, $t8, 6			# shifts t8 down 6 places
+	or $t7, $t7, $t6		# ORs t8 and t6
+	sll $t7, $t7, 6			# shifts t8 down 6 places
 	
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
 	bne $t1, 5, printA		# Loops 5 times for the 5 sixes
 	
+	# Last 2 bits
 	lb $t5, ($a0)
 	subi $t5, $t5, 32
 	add $t5, $t5, $a1
 	lbu $t6, ($t5)
 	srl $t6, $t6, 6			# shift right 6 times so you only get the last 2 bits
-	or $t8, $t8, $t6		
+	or $t7, $t7, $t6		
 	
+	add $t8, $zero, $t7
+	li $t7, 0
 	li $t9, 1
-	li $t8, 0
+	
 	
 	#4 + 6 + 6 + 6 + 6 + 4
 	
+	# other 4 bits
 	lb $t5, ($a0)
 	subi $t5, $t5, 32
 	add $t5, $t5, $a1
 	lbu $t6, ($t5)
-	sll $t6, $t6, 4			# shift left 4 times and back to get 4 bits
-	srl $t6, $t6, 4	
-	or $t8, $t8, $t6
-	sll $t8, $t8, 4			# shifts t8 down 6 places
+	sll $t7, $t6, 4			# shift left 4 times and back to get 4 bits
 	li $t1, 0			# Set counter2 to 0
 	
+	addi $a0, $a0, 1		# Buffer++
+	li $t1, 0			# Set counter2 to 0
+	
+	# 4 6 bits
 	printB:
 	lb $t5, ($a0)			# Set t5 to beginning of buffer
 	subi $t5, $t5, 32		# - 32 from ascii value
 	add $t5, $t5, $a1		# 
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
-	or $t8, $t8, $t6		# ORs t8 and t6
-	sll $t8, $t8, 6			# shifts t8 down 6 places
+	or $t7, $t7, $t6		# ORs t8 and t6
+	sll $t7, $t7, 6			# shifts t8 down 6 places
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
 	bne $t1, 4, printB		# Loops 4 times for the 4 sixes
 	
+	# Last 4 bits
+	lb $t5, ($a0)
+	subi $t5, $t5, 32
+	add $t5, $t5, $a1
+	lbu $t6, ($t5)
+	srl $t6, $t6, 4			# shift right 4 times and back to get 4 bits
+	sll $t6, $t6, 4	
+	or $t7, $t7, $t6
 	
-	
+	li $t1, 0			# Set counter2 to 0
+	add $t8, $zero, $t7
 	li $t9, 1
-	li $t8, 0
+	li $t7, 0
+	
 	#2 + 6 + 6 + 6 + 6 + 6
+	# Print last 2 bits
+	lb $t5, ($a0)
+	subi $t5, $t5, 32
+	add $t5, $t5, $a1
+	lbu $t6, ($t5)
+	sll $t6, $t6, 6
+	#srl $t7, $t6, 6			# shift right 6 times so you only get the last 2 bits
+	
+	addi $a0, $a0, 1		# Buffer++
+	# Print 5 6 bits
 	printC:
+	lb $t5, ($a0)			# Set t5 to beginning of buffer
+	subi $t5, $t5, 32		# - 32 from ascii value
+	add $t5, $t5, $a1		# 
+	lbu $t6, ($t5)			# set t6 to ascii value of buffer
+	srl $t6, $t6, 2			# Makes t6 only 6 bits
+	or $t7, $t7, $t6		# ORs t8 and t6
+	sll $t7, $t7, 6			# shifts t8 down 6 places
+	addi $a0, $a0, 1		# buffer++
+	addi $t1, $t1, 1		# counter++
+	bne $t1, 5, printC		# Loops 5 times for the 5 sixes
 	
-	
-	
+	add $t8, $zero, $t7
 	li $t9, 1
-	li $t8, 0
-	#beq $t0, 5, $ra			# 3 * 5 * 32 = 480 bits
+	li $t7, 0
+	addi $t0, $t0, 1
+	bne $t0, 5, _printLine		# 3 * 5 * 32 = 480 bits
+
+	jr $ra
 
 
-
-#_printBuffer:
-	#move 
-	#la $a0, buffer
-	#la   $a1, line1
-	#jal  _printLine
-	#la  $a0, buffer
-	#la   $a1, line2
-	#jal  _printLine:
-	#la  $a0, buffer
-	#la   $a1, line8
-	#jal  _printLine
+_printBuffer:
+	la $a0, buffer
+	la   $a1, line1
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
+	la  $a0, buffer
+	la   $a1, line2
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
+	la  $a0, buffer
+	la   $a1, line3
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
+	la  $a0, buffer
+	la   $a1, line4
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
+	la  $a0, buffer
+	la   $a1, line5
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
+	la  $a0, buffer
+	la   $a1, line6
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
+	la  $a0, buffer
+	la   $a1, line7
+	li $t0, 0			# Set counter to 0
+	jal  _printLine	
+	la  $a0, buffer
+	la   $a1, line8
+	li $t0, 0			# Set counter to 0
+	jal  _printLine
 _printSpaceBetweenLine:
 	beq $t0, 75, finish
 	addi $t8, $zero, 0x00000000
-	#addi $t9, $zero, 1
+	addi $t9, $zero, 1
 	
 	addi $t0, $t0, 1		# Set counter++
 	
