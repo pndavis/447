@@ -35,8 +35,18 @@ next:
 	li $a2, 1      			# mode is ignored
 	syscall
 	move $s6, $v0			# save the file descriptor
+
+main:
 	li $t0, 0			# Set counter to 0
-	la   $a1, buffer		# address of buffer from which to read
+	move $a0, $s6			# file descriptor 
+	la $a1, buffer			# address of buffer from which to read
+	jal _readLine
+	
+	jal _printBuffer
+	jal _printSpaceBetweenLine
+	
+	beq $t4, 1, finish		# If readline detects the end of the file, end program
+	j main
 
 _readLine:
 
@@ -44,14 +54,13 @@ _readLine:
 					# Return 1 if it encounters the end of file else return 0
 					# Should always fill up the 80-byte bu↵er
 					# Read the file one byte at a time
-					
+			
 	li   $v0, 14			# Read from file
-	move $a0, $s6			# file descriptor 
 	li   $a2, 1			# reads 1 char in
 	syscall	
 	lb $t1, ($a1)			# Stores byte to buffer
-	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
 	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
+	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
 	addi $a1, $a1, 1		# Set buffer++
 	addi $t0, $t0, 1		# Set counter++	
 	j _readLine
@@ -66,14 +75,10 @@ fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
 	sb $t3, ($a1)			# Add a space to the end of buffer	
 	beq $t0, 80, done		# Fill until count hits 80, which means we hit the end of the buffer
 	addi $a1, $a1, 1		# Set buffer++
-	addi $t0, $t0, 1		# Set counter++
-	
+	addi $t0, $t0, 1		# Set counter++	
 	j fill
 done:
-	j _printBuffer
-	#li $t0, 0			# Set counter to 0
-	#j _printSpaceBetweenLine
-
+	jr $ra
 
 _printLine:
 
@@ -95,6 +100,7 @@ _printLine:
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
 	bne $t1, 5, printA		# Loops 5 times for the 5 sixes
+	
 	
 	# Last 2 bits
 	lb $t5, ($a0)
@@ -155,8 +161,8 @@ _printLine:
 	subi $t5, $t5, 32
 	add $t5, $t5, $a1
 	lbu $t6, ($t5)
-	sll $t6, $t6, 6
-	#srl $t7, $t6, 6			# shift right 6 times so you only get the last 2 bits
+	sll $t7, $t6, 6
+	#srl $t7, $t6, 6		# shift right 6 times so you only get the last 2 bits
 	
 	addi $a0, $a0, 1		# Buffer++
 	# Print 5 6 bits
@@ -182,45 +188,51 @@ _printLine:
 
 
 _printBuffer:
+	add $t2, $zero, $ra
 	la $a0, buffer
-	la   $a1, line1
+	la $a1, line1
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
-	la  $a0, buffer
-	la   $a1, line2
+	jal _printLine
+	la $a0, buffer
+	la $a1, line2
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
-	la  $a0, buffer
-	la   $a1, line3
+	jal _printLine
+	la $a0, buffer
+	la $a1, line3
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
-	la  $a0, buffer
-	la   $a1, line4
+	jal _printLine
+	la $a0, buffer
+	la $a1, line4
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
-	la  $a0, buffer
-	la   $a1, line5
+	jal _printLine
+	la $a0, buffer
+	la $a1, line5
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
-	la  $a0, buffer
-	la   $a1, line6
+	jal _printLine
+	la $a0, buffer
+	la $a1, line6
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
-	la  $a0, buffer
-	la   $a1, line7
+	jal _printLine
+	la $a0, buffer
+	la $a1, line7
 	li $t0, 0			# Set counter to 0
-	jal  _printLine	
-	la  $a0, buffer
-	la   $a1, line8
+	jal _printLine	
+	la $a0, buffer
+	la $a1, line8
 	li $t0, 0			# Set counter to 0
-	jal  _printLine
+	jal _printLine
+	add $ra, $zero, $t2
+	jr $ra
 _printSpaceBetweenLine:
-	beq $t0, 75, finish
 	addi $t8, $zero, 0x00000000
 	addi $t9, $zero, 1
 	
 	addi $t0, $t0, 1		# Set counter++
 	
-	j _printSpaceBetweenLine
+	bne $t0, 75, _printSpaceBetweenLine
+	
+	jr $ra
 
 finish:
+	addi $v0, $zero, 10
+	syscall
