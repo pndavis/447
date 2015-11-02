@@ -65,8 +65,8 @@ _readLine:
 	beq $t1, 0, fileEnd		# if the char just read in == end of file (ASCII value 0) jump to fileEnd
 	beq $t1, 10, newLine		# if the char just read in == new line character (ASCII value 10) jump to newline
 	addi $a1, $a1, 1		# Set buffer++
-	addi $t0, $t0, 1		# Set counter++	
 	j _readLine
+	addi $t0, $t0, 1		# Set counter++	
 newLine:
 	li $v0, 0
 	j fill
@@ -93,11 +93,11 @@ _printLine:
 	add $t5, $t5, $a1		# 
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
-	or $t7, $t7, $t6		# ORs t8 and t6
+	or $t7, $t7, $t6		# ORs t7 and t6
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
 	beq $t1, 5, finishPrintA	# This way it doesn't shift 6 when it should only shift 2
-	sll $t7, $t7, 6			# shifts t8 down 6 places
+	sll $t7, $t7, 6			# shifts t7 down 6 places
 	j printA
 
 	# Last 2 bits
@@ -133,7 +133,7 @@ _printLine:
 	add $t5, $t5, $a1		# 
 	lbu $t6, ($t5)			# set t6 to ascii value of buffer
 	srl $t6, $t6, 2			# Makes t6 only 6 bits
-	or $t7, $t7, $t6		# ORs t8 and t6
+	or $t7, $t7, $t6		# ORs t7 and t6
 	addi $a0, $a0, 1		# buffer++
 	addi $t1, $t1, 1		# counter++
 	beq $t1, 4, finishPrintB	# Loops 4 times for the 4 sixes
@@ -150,7 +150,7 @@ _printLine:
 	srl $t6, $t6, 4			# shift right 4 times and back to get 4 bits
 	or $t7, $t7, $t6
 		
-	li $t1, 0			# Set counter2 to 0
+	li $t1, 0				# Set counter2 to 0
 	move $t8, $t7
 	li $t9, 1
 	li $t7, 0
@@ -162,7 +162,7 @@ _printLine:
 	andi $t6, $t6, 3
 	sll $t7, $t6, 6
 	addi $a0, $a0, 1		# Buffer++
-	li $t1, 0			# Set counter2 to 0
+	li $t1, 0				# Set counter2 to 0
 	
 	# Print 5 6 bits
 	printC:
@@ -196,31 +196,31 @@ _printBuffer:
 	la $a1, line1
 	li $t0, 0			# Set counter to 0
 	jal _printLine
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line2
 	li $t0, 0			# Set counter to 0
 	jal _printLine
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line3
 	li $t0, 0			# Set counter to 0
 	jal _printLine
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line4
 	li $t0, 0			# Set counter to 0
 	jal _printLine
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line5
 	li $t0, 0			# Set counter to 0
 	jal _printLine
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line6
 	li $t0, 0			# Set counter to 0
 	jal _printLine
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line7
 	li $t0, 0			# Set counter to 0
 	jal _printLine	
-	la $a0, buffer
+	move $a0, $s7
 	la $a1, line8
 	li $t0, 0			# Set counter to 0
 	jal _printLine
@@ -228,12 +228,9 @@ _printBuffer:
 	jr $ra
 _printSpaceBetweenLine:
 	addi $t8, $zero, 0x00000000
-	addi $t9, $zero, 1
-	
-	addi $t0, $t0, 1		# Set counter++
-	
+	addi $t9, $zero, 1	
+	addi $t0, $t0, 1		# Set counter++	
 	bne $t0, 75, _printSpaceBetweenLine
-	
 	jr $ra
 
 finish:
