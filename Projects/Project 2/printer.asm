@@ -42,12 +42,13 @@ main:
 	la $a1, buffer			# address of buffer from which to read
 	jal _readLine
 	
+	la $a0, buffer
 	jal _printBuffer
 	li $t0, 0			# Set counter to 0
 	jal _printSpaceBetweenLine
 	
 	#j finish			# Test to print just 1 line
-	beq $t4, 1, finish		# If readline detects the end of the file, end program
+	beq $v0, 1, finish		# If readline detects the end of the file, end program
 	j main
 
 _readLine:
@@ -67,10 +68,10 @@ _readLine:
 	addi $t0, $t0, 1		# Set counter++	
 	j _readLine
 newLine:
-	li $t4, 0
+	li $v0, 0
 	j fill
 fileEnd:
-	li $t4, 1
+	li $v0, 1
 	j fill
 fill:					# Takes the buffer, and fills the rest of the 80 bytes with spaces
 	li $t3, 32			# Set t3 to ASCII space
@@ -118,9 +119,9 @@ _printLine:
 	
 	# other 4 bits
 	lbu $t6, ($t5)
-	srl $t6, $t6, 2			# 
-	andi $t6, $t6, 15
-	sll $t7, $t7, 6	
+	#srl $t6, $t6, 2			# 
+	#andi $t6, $t6, 15
+	sll $t7, $t6, 4	
 	
 	addi $a0, $a0, 1		# Buffer++
 	li $t1, 0			# Set counter2 to 0
@@ -189,7 +190,9 @@ _printLine:
 
 _printBuffer:
 	add $t2, $zero, $ra
-	la $a0, buffer
+	
+	move $s7, $a0
+	move $a0, $s7
 	la $a1, line1
 	li $t0, 0			# Set counter to 0
 	jal _printLine
