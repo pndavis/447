@@ -1,33 +1,19 @@
-.data 
-
 .text
+	la $t0, 0xFFFF8000		# Start value of terminal
+	li $s0, 0x00002200		# Color value of the dark green
+fill:
+	li $a0, 10
+	li $a1, 93
+	li $v0, 42
+	syscall				# Generate random number
+	addi $a0, $a0, 33
+	sll $a0, $a0, 24
+	or $t1, $s0, $a0
+	sw $t1, ($t0)			# Add to terminal
+	addi $t0, $t0, 4		# Increment a word
+	blt $t0, 0xFFFFB200, fill	#Fills until the end of the terminal has been reached
 
 
-hello:  .asciiz  "Hello World!!!"
-	li   $s0, 0xffff8000
-	li   $s1, 0x00ffffff
-	la   $s2, hello
-loop:
-	lb   $s3, 0($s2)
-	beq  $s3, $zero, done
-	sll  $s3, $s3, 24
-	or   $s3, $s3, $s1
-	sw   $s3, 0($s0)
-	addi $s2, $s2, 1
-	addi $s0, $s0, 4
-	j    loop
-done:
-	addi $v0, $zero, 10
-	syscall
-# $s0 - Base address of the terminal
-# $s1 - Color of character (white)
-# $s2 - Address of the string hello
-# Load a character
-# Encounter the null-character, done
-# Move ascii value to the top 8-bit
-# Put color to the bottom 24-bit
-# Put character on the terminal
-# Go to the next character (string hello)
-# Go to the next word (terminal)
-# Syscall 10: terminate program
-# Terminate program
+
+# $a0 = column 
+_iterate:
