@@ -62,6 +62,8 @@ iterateFF:
 	or $t1, $t1, $t2
 	sw $t1, ($t0)
 	addi $t0, $t0, 320
-	j iterateLoop
+	j return
 return:
+	mul $t0, $a0, 4
+	add $t0, $t0, 0xffff8000
 	j iterateLoop
