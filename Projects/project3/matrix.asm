@@ -2,7 +2,7 @@
 	addi $t9, $zero, 20		# NUMBER OF LINES. Change only this value to change the number of lines
 	
 	la $t0, 0xffff8000		# Start value of terminal
-	li $s0, 0x000022ff		# Color value of the dark green
+	li $s0, 0x00002200		# Color value of the dark green
 fill:
 	li $a0, 10
 	li $a1, 93			#change 93 to 2 for 1s and 0s
@@ -41,7 +41,7 @@ mainLoop:
 	lb $s1, ($sp)
 	addi $sp, $sp, 1
 	lb $s2, ($sp)
-	addi $sp, $sp, 1
+	addi $sp, $sp, -1
 	
 	
 	jal _iterate
@@ -53,7 +53,7 @@ old:
 	addi $t4, $t4, 1
 	la $t0, 0xffff8000
 	move $v0, $zero
-	
+	addi $sp, $sp, 2
 	j mainLoop
 
 _newColumn:
