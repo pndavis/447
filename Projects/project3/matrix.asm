@@ -1,6 +1,6 @@
 .text
 	la $t0, 0xffff8000		# Start value of terminal
-	li $s0, 0x00002200		# Color value of the dark green
+	li $s0, 0x000022ff		# Color value of the dark green
 fill:
 	li $a0, 10
 	li $a1, 93
@@ -25,10 +25,10 @@ old:
 
 _newColumn:
 	li $a0, 10
-	li $a1, 79			#0-79
+	li $a1, 80			#0-79
 	li $v0, 42
 	syscall				# Generate random number
-	addi $a0, $a0, 1		#1-80
+	#addi $a0, $a0, 1		#1-80
 	mul $t0, $a0, 4
 	add $t0, $t0, 0xffff8000
 	lw $t1, ($t0)
@@ -45,7 +45,7 @@ _iterate:
 	mul $t0, $a0, 4
 	add $t0, $t0, 0xffff8000
 iterateLoop:
-	bgt $t0, 0xffffb200, return
+	bgt $t0, 0xffffb1ff, return
 	lw $t1, ($t0)
 	lw $t2, ($t0)
 	andi $t1, $t1, 0x0000ff00
@@ -65,6 +65,7 @@ iterateFF:
 	or $t1, $t1, $t2
 	sw $t1, ($t0)
 	addi $t0, $t0, 320
+	bgt $t0, 0xffffb1ff, return
 	lw $t1, ($t0)
 	lw $t2, ($t0)
 	andi $t1, $t1, 0x0000ff00
