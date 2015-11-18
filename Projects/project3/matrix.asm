@@ -72,13 +72,6 @@ iterateFF:
 	addi $t1, $t1, 0x0000dd00
 	or $t1, $t1, $t2
 	sw $t1, ($t0)
-	addi $t0, $t0, 320
-	j return
-return:
-	mul $t0, $a0, 4
-	add $t0, $t0, 0xffff8000
-	#j iterateLoop
 	jr $ra
-returnNotFound:
-	#addi $a0, $zero, 0
+return:
 	jr $ra
