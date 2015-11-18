@@ -1,35 +1,74 @@
 .text
+	addi $t9, $zero, 40		# NUMBER OF LINES. Change only this value to change the number of lines
+	
 	la $t0, 0xffff8000		# Start value of terminal
 	li $s0, 0x000022ff		# Color value of the dark green
 fill:
 	li $a0, 10
-	li $a1, 93
+	li $a1, 93			#change 93 to 2 for 1s and 0s
 	li $v0, 42
 	syscall				# Generate random number
-	addi $a0, $a0, 33
+	addi $a0, $a0, 33		# change 33 to 48 for 1s and 0s
 	sll $a0, $a0, 24
 	or $t1, $s0, $a0
 	sw $t1, ($t0)			# Add to terminal
 	addi $t0, $t0, 4		# Increment a word
 	blt $t0, 0xffffb200, fill	# Fills until the end of the terminal has been reached
 	move $v0, $zero
-
+	subi $sp, $zero, 160
+	move $t8, $sp
+headInitialize:				# Initialize t9 number of runners
+	beq $t4, $t9, mainLoop
+	jal _newColumn
+	addi $t4, $t4, 1
+	addi $sp, $sp, 2
+	j headInitialize
+	
 main:
-	beq $v0, 1, old 
+	move $t4, $zero
+	j mainLoop
+	
+	
+mainLoop:
+	#t4 - counter
+	#t9 - Total columns
+	#s1 - column
+	#s2 - speed
+	
+	bgt $t4, $t9, main
+	
+	lb $s1, ($sp)
+	addi $sp, $sp, 1
+	lb $s2, ($sp)
+	addi $sp, $sp, 1
+	
 	jal _newColumn
 old:
 	la $t0, 0xffff8000
 	move $v0, $zero
 	jal _iterate
-	j main
+	j mainLoop
 
 _newColumn:
 	li $a0, 10
-	li $a1, 80			#0-79
+	li $a1, 5			#0-5
+	li $v0, 42
+	syscall
+	move $s2, $a0			#Store speed in s1
+
+	li $a0, 10
+	li $a1, 80			#0-80
 	li $v0, 42
 	syscall				# Generate random number
-	#addi $a0, $a0, 1		#1-80
-	mul $t0, $a0, 4
+	move $t2, $ra			
+	jal _isValid
+	move $ra, $t2
+	beq $a1, 1, _newColumn
+	move $s1, $a0			#Store column in s1
+	sb $s1, ($sp)
+	addi $sp, $zero, 1
+	sb $s2, ($sp)
+	mul $t0, $s1, 4
 	add $t0, $t0, 0xffff8000
 	lw $t1, ($t0)
 	lw $t2, ($t0)
@@ -40,12 +79,27 @@ _newColumn:
 	sw $t1, ($t0)
 	jr $ra
 	
+_isValid:
+	addi $a0, $zero, 0
+	beq $sp, $a1, vFound		#if found, return with a0 = 0
+	beq $t3, $t9, vReturn		#t9 is number of lines
+	addi $sp, $sp, 2
+	addi $t3, $t3, 1
+vFound:
+	addi $a1, $zero, 1
+vReturn:
+	mul $t3, $t3, 2
+	sub $sp, $sp, $t3
+	move $t3, $zero
+	jr $ra
+	
 # $a0 = column 
 _iterate:
-	mul $t0, $a0, 4
+	lb $s1, ($sp)
+	mul $t0, $s1, 4
 	add $t0, $t0, 0xffff8000
 iterateLoop:
-	bgt $t0, 0xffffb1ff, return
+	bgt $t0, 0xffffb1ff, iReturn
 	lw $t1, ($t0)
 	lw $t2, ($t0)
 	andi $t1, $t1, 0x0000ff00
@@ -65,7 +119,7 @@ iterateFF:
 	or $t1, $t1, $t2
 	sw $t1, ($t0)
 	addi $t0, $t0, 320
-	bgt $t0, 0xffffb1ff, return
+	bgt $t0, 0xffffb1ff, iReturn
 	lw $t1, ($t0)
 	lw $t2, ($t0)
 	andi $t1, $t1, 0x0000ff00
@@ -74,5 +128,5 @@ iterateFF:
 	or $t1, $t1, $t2
 	sw $t1, ($t0)
 	jr $ra
-return:
+iReturn:
 	jr $ra
