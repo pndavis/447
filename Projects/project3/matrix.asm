@@ -1,5 +1,5 @@
 .text
-	addi $t9, $zero, 20		# NUMBER OF LINES. Change only this value to change the number of lines
+	addi $t9, $zero, 60		# NUMBER OF LINES. Change only this value to change the number of lines. Max is 78
 	
 	la $t0, 0xffff8000		# Start value of terminal
 	li $s0, 0x00002200		# Color value of the dark green
@@ -27,6 +27,8 @@ headInitialize:				# Initialize t9 number of runners
 main:
 	move $t4, $zero
 	move $sp, $t8
+	beq $s6, 0, _resetSwitch
+	#addi $s6, $zero, 5
 	j mainLoop
 	
 	
@@ -44,24 +46,30 @@ mainLoop:
 	addi $sp, $sp, -1
 	
 	
+	bgt $s2, $s6, old  
 	jal _iterate
 	beq $v0, 1, old
 	move $s7, $sp
 	jal _newColumn
 	move $sp, $s7
+	addi $s6, $s6, -1
 old:
 	addi $t4, $t4, 1
+	
 	la $t0, 0xffff8000
 	move $v0, $zero
 	addi $sp, $sp, 2
 	j mainLoop
+_resetSwitch:
+	addi $s6, $zero, 4
+	jr $ra
 
 _newColumn:
 	li $a0, 10
-	li $a1, 5			#0-5
+	li $a1, 4			#0-5
 	li $v0, 42
 	syscall
-	move $s2, $a0			#Store speed in s1
+	#addi $s2, $a0, 1			#Store speed in s1
 
 	li $a0, 10
 	li $a1, 80			#0-80
