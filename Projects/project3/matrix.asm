@@ -1,5 +1,5 @@
 .text
-	addi $t9, $zero, 40		# NUMBER OF LINES. Change only this value to change the number of lines
+	addi $t9, $zero, 20		# NUMBER OF LINES. Change only this value to change the number of lines
 	
 	la $t0, 0xffff8000		# Start value of terminal
 	li $s0, 0x000022ff		# Color value of the dark green
@@ -18,7 +18,7 @@ fill:
 	subi $sp, $zero, 160
 	move $t8, $sp
 headInitialize:				# Initialize t9 number of runners
-	beq $t4, $t9, mainLoop
+	beq $t4, $t9, main
 	jal _newColumn
 	addi $t4, $t4, 1
 	addi $sp, $sp, 2
@@ -26,6 +26,7 @@ headInitialize:				# Initialize t9 number of runners
 	
 main:
 	move $t4, $zero
+	move $sp, $t8
 	j mainLoop
 	
 	
@@ -42,11 +43,17 @@ mainLoop:
 	lb $s2, ($sp)
 	addi $sp, $sp, 1
 	
+	
+	jal _iterate
+	beq $v0, 1, old
+	move $s7, $sp
 	jal _newColumn
+	move $sp, $s7
 old:
+	addi $t4, $t4, 1
 	la $t0, 0xffff8000
 	move $v0, $zero
-	jal _iterate
+	
 	j mainLoop
 
 _newColumn:
@@ -60,14 +67,18 @@ _newColumn:
 	li $a1, 80			#0-80
 	li $v0, 42
 	syscall				# Generate random number
-	move $t2, $ra			
+	move $t2, $ra
+	move $s7, $sp
+	move $sp, $t8			# set sp to -160
 	jal _isValid
+	move $sp, $s7
 	move $ra, $t2
 	beq $a1, 1, _newColumn
 	move $s1, $a0			#Store column in s1
 	sb $s1, ($sp)
-	addi $sp, $zero, 1
+	addi $sp, $sp, 1
 	sb $s2, ($sp)
+	addi $sp, $sp, -1
 	mul $t0, $s1, 4
 	add $t0, $t0, 0xffff8000
 	lw $t1, ($t0)
@@ -80,11 +91,13 @@ _newColumn:
 	jr $ra
 	
 _isValid:
-	addi $a0, $zero, 0
-	beq $sp, $a1, vFound		#if found, return with a0 = 0
+	addi $a1, $zero, 0
+	lb $s1, ($sp)
+	beq $s1, $a0, vFound		#if found, return with a0 = 0
 	beq $t3, $t9, vReturn		#t9 is number of lines
 	addi $sp, $sp, 2
 	addi $t3, $t3, 1
+	j _isValid
 vFound:
 	addi $a1, $zero, 1
 vReturn:
