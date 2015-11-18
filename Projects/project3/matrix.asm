@@ -11,21 +11,26 @@ fill:
 	or $t1, $s0, $a0
 	sw $t1, ($t0)			# Add to terminal
 	addi $t0, $t0, 4		# Increment a word
-	blt $t0, 0xffffb200, fill	#Fills until the end of the terminal has been reached
+	blt $t0, 0xffffb200, fill	# Fills until the end of the terminal has been reached
+	move $v0, $zero
 
-reset:
-	move $t0, $zero
-	move $t1, $zero
-	move $a0, $zero
-	move $a1, $zero
-#Test
-	addi $a0, $zero, 10
+main:
+	beq $v0, 1, old 
+	jal _newColumn
+old:
+	la $t0, 0xffff8000
+	move $v0, $zero
+	jal _iterate
+	j main
 
-# $a0 = column 
-_iterate:
+_newColumn:
+	li $a0, 10
+	li $a1, 79			#0-79
+	li $v0, 42
+	syscall				# Generate random number
+	addi $a0, $a0, 1		#1-80
 	mul $t0, $a0, 4
 	add $t0, $t0, 0xffff8000
-	#
 	lw $t1, ($t0)
 	lw $t2, ($t0)
 	andi $t1, $t1, 0x0000ff00
@@ -33,7 +38,12 @@ _iterate:
 	andi $t2, $t2, 0xff000000
 	or $t1, $t1, $t2
 	sw $t1, ($t0)
-	#
+	jr $ra
+	
+# $a0 = column 
+_iterate:
+	mul $t0, $a0, 4
+	add $t0, $t0, 0xffff8000
 iterateLoop:
 	bgt $t0, 0xffffb200, return
 	lw $t1, ($t0)
@@ -43,6 +53,7 @@ iterateLoop:
 	addi $t0, $t0, 320
 	blt $t1, 0x00003300, iterateLoop	# if the value is normal, branch
 	subi $t0, $t0, 320
+	addi $v0, $zero, 1
 	beq $t1, 0x0000ff00, iterateFF
 	subi $t1, $t1, 0x00001100
 	or $t1, $t1, $t2
@@ -66,4 +77,8 @@ iterateFF:
 return:
 	mul $t0, $a0, 4
 	add $t0, $t0, 0xffff8000
-	j iterateLoop
+	#j iterateLoop
+	jr $ra
+returnNotFound:
+	#addi $a0, $zero, 0
+	jr $ra
