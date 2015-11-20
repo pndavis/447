@@ -1,8 +1,8 @@
-.text
+.text   ###################
 	addi $t9, $zero, 60			# NUMBER OF LINES. Change only this value to change the number of lines. Max is 78
-	
+	###################
 	la $t0, 0xffff8000			# Start value of terminal
-	li $s0, 0x00002200			# Color value of the dark green
+	li $s0, 0x00002200			# Color value of the dark green. Change color value to test that all lines are used
 fill:
 	li $a0, 10
 	li $a1, 93				#change 93 to 2 for 1s and 0s
@@ -26,14 +26,13 @@ headInitialize:					# Initialize t9 number of runners
 	addi $sp, $sp, 2
 	j headInitialize
 	
-main:
+main:						# Main program. Calling mainLoop will iterate all columns 1
 	move $t4, $zero
-	move $sp, $t8
-	beq $s6, 0, resetSwitch
+	move $sp, $t8				# Reset stack pointer to -160
+	beq $s6, 0, resetSwitch			# s6 cycles through 1-5 to give different speeds
 resetreturn:
 	addi $s6, $s6, -1
 	j mainLoop
-	
 	
 mainLoop:
 	#t4 - counter
@@ -41,26 +40,24 @@ mainLoop:
 	#s1 - column
 	#s2 - speed
 	
-	bge $t4, $t9, main
-	
+	bge $t4, $t9, main			# Run mainLoop t9 number of times
 	lb $s1, ($sp)
 	addi $sp, $sp, 1
 	lb $s2, ($sp)
 	addi $sp, $sp, -1
 	
-	blt $s2, $s6, skip
+	blt $s2, $s6, skip			# If it is less than, skip iterating this time to give different speeds
 	jal _iterate
-	beq $s5, 1, skip
+	beq $s5, 1, skip			# Iterate changes s5 if it has finished a column and needs a new one
 	jal _newColumn
 skip:
-	addi $t4, $t4, 1
-	
-	la $t0, 0xffff8000
-	move $s5, $zero
-	addi $sp, $sp, 2
+	addi $t4, $t4, 1			# Counter++
+	la $t0, 0xffff8000			# Point t0 to beginning of terminal
+	move $s5, $zero				# Reset s5
+	addi $sp, $sp, 2			# Stack = Stack + 2
 	j mainLoop
 resetSwitch:
-	addi $s6, $zero, 5
+	addi $s6, $zero, 5			# Flip s6 from 0 to 5
 	j resetreturn
 
 _newColumn:
@@ -68,10 +65,9 @@ _newColumn:
 	li $a1, 4				#0-5
 	li $v0, 42
 	syscall
-	addi $s2, $a0, 1			#Store speed in s1
-
+	addi $s2, $a0, 1			# Store speed in s1
 	li $a0, 10
-	li $a1, 80				#0-80
+	li $a1, 80				# 0-80
 	li $v0, 42
 	syscall					# Generate random number
 	move $t2, $ra
@@ -108,12 +104,9 @@ _isValid:
 vFound:
 	addi $a1, $zero, 1
 vReturn:
-	#mul $t3, $t3, 2
-	#sub $sp, $sp, $t3
 	move $t3, $zero
 	jr $ra
 	
-# $a0 = column 
 _iterate:
 	lb $s1, ($sp)				# Get the column number
 	mul $t0, $s1, 4
