@@ -1,5 +1,5 @@
 .text
-	addi $t9, $zero, 40			# NUMBER OF LINES. Change only this value to change the number of lines. Max is 78
+	addi $t9, $zero, 60			# NUMBER OF LINES. Change only this value to change the number of lines. Max is 78
 	
 	la $t0, 0xffff8000			# Start value of terminal
 	li $s0, 0x00002200			# Color value of the dark green
@@ -18,6 +18,7 @@ fill:
 	subi $sp, $zero, 160
 	move $t8, $sp
 	addi $s6, $zero, 5
+	
 headInitialize:					# Initialize t9 number of runners
 	beq $t4, $t9, main
 	jal _newColumn
@@ -28,7 +29,8 @@ headInitialize:					# Initialize t9 number of runners
 main:
 	move $t4, $zero
 	move $sp, $t8
-	beq $s6, 0, _resetSwitch
+	beq $s6, 0, resetSwitch
+resetreturn:
 	addi $s6, $s6, -1
 	j mainLoop
 	
@@ -39,14 +41,14 @@ mainLoop:
 	#s1 - column
 	#s2 - speed
 	
-	bgt $t4, $t9, main
+	bge $t4, $t9, main
 	
 	lb $s1, ($sp)
 	addi $sp, $sp, 1
 	lb $s2, ($sp)
 	addi $sp, $sp, -1
 	
-	bgt $s2, $s6, skip
+	blt $s2, $s6, skip
 	jal _iterate
 	beq $s5, 1, skip
 	jal _newColumn
@@ -57,9 +59,9 @@ skip:
 	move $s5, $zero
 	addi $sp, $sp, 2
 	j mainLoop
-_resetSwitch:
+resetSwitch:
 	addi $s6, $zero, 5
-	jr $ra
+	j resetreturn
 
 _newColumn:
 	li $a0, 10
@@ -96,18 +98,18 @@ _newColumn:
 	jr $ra
 	
 _isValid:
-	addi $a1, $zero, 0
-	lb $s1, ($sp)
 	beq $s1, $a0, vFound			#if found, return with a0 = 0
 	beq $t3, $t9, vReturn			#t9 is number of lines
+	addi $a1, $zero, 0
+	lb $s1, ($sp)
 	addi $sp, $sp, 2
 	addi $t3, $t3, 1
 	j _isValid
 vFound:
 	addi $a1, $zero, 1
 vReturn:
-	mul $t3, $t3, 2
-	sub $sp, $sp, $t3
+	#mul $t3, $t3, 2
+	#sub $sp, $sp, $t3
 	move $t3, $zero
 	jr $ra
 	
