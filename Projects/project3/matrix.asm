@@ -11,7 +11,7 @@
 	# s7 - to backup sp
 	
 	###################
-	addi $t9, $zero, 60			# NUMBER OF LINES. Change only this value to change the number of lines. Max is 78
+	addi $t9, $zero, 50			# NUMBER OF LINES. Change only this value to change the number of lines. Max is 78
 	###################
 	la $t0, 0xffff8000			# Start value of terminal
 	li $s0, 0x00002200			# Color value of the dark green. Change color value to test that all lines are used
